@@ -12,9 +12,9 @@ But I'm a developer, I can stop this shit.
 
 Blurry is a simple command-line utility that helps you finding the sharpest pictures in a folder.
 
-Give to Blurry a folder full of pictures, it will analyze each one of them using algorithms similar to the AutoFocus systems of modern cameras.
+Give to Blurry a folder full of pictures and it will analyze them all with a technique similar to the AutoFocus of modern cameras.
 
-For each picture Blurry will compute a sharpness score, adding it to the picture's filename. 
+For each picture Blurry computes a sharpness score and adds it to the picture's filename. 
 It's pretty fast, because it can guess the overall sharpness looking at a small sample of pixels, and uses all the cores of your CPU for the computation.
 
 You can tell Blurry to restore original filenames running it again with an additional parameter.
