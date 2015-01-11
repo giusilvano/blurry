@@ -21,4 +21,8 @@ You can tell Blurry to restore original filenames running it again with an addit
 
 ## Getting started
 
-Put the binary somewhere and execute it from the shell to learn the basic commands. It's super simple, KISS.
+1. Ensure to have [Java 8](https://java.com/download) installed on your system.
+2. Download the [latest release](https://github.com/giusilvano/blurry/releases/download/v1.0.0/blurry.zip) of Blurry.
+3. Extract the Blurry folder somewhere on your PC/Mac/whatever.
+4. Run <code>blurry.bat</code> on Windows or <code>blurry.sh<code> on Linux/Unix/Mac.
+5. Enjoy!
