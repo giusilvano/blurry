@@ -11,4 +11,4 @@ FOR %%F IN (%BIN_DIR_PATH%\*.jar) DO (
 )
 
 :RUN
-java -version:"1.8+" -jar "%JAR_PATH%"
+java -version:"1.8+" -jar "%JAR_PATH%" %*
