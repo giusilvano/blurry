@@ -45,43 +45,47 @@ public class Main {
     final float sampleCoverage;
 
     try {
-      final CommandLine cmd = parser.parse(options, args);
+        final CommandLine cmd = parser.parse(options, args);
 
-      if (cmd.hasOption("cur-dir")) {
-        path = System.getProperty("user.dir");
-      } else {
-        final String[] dir = cmd.getArgs();
-        if (dir.length == 0) {
-          printUsageInfo(options);
-          return;
+        if (cmd.hasOption("cur-dir")) {
+            path = System.getProperty("user.dir");
         } else {
-          path = dir[0];
+            final String[] dir = cmd.getArgs();
+            if (dir.length == 0) {
+                printUsageInfo(options);
+                return;
+            } else {
+                path = dir[0];
+            }
         }
-      }
 
-      if (cmd.hasOption("sample-coverage")) {
-        final String sampleCoverageStr = cmd.getOptionValue("sample-coverage");
-        try {
-          sampleCoverage = Float.parseFloat(sampleCoverageStr);
-          if (sampleCoverage <= 0 || sampleCoverage > 1) {
-            System.out.printf("Error in sample coverage parameter: value \"%f\" is not >0 or not <=1.", sampleCoverage);
-            return;
-          }
-        } catch (NumberFormatException e) {
-          System.out.printf("Error in sample coverage parameter: string \"%s\" is not a parsable float number.", sampleCoverageStr);
-          return;
+        if (cmd.hasOption("sample-coverage")) {
+            final String sampleCoverageStr = cmd.getOptionValue("sample-coverage");
+            try {
+                sampleCoverage = Float.parseFloat(sampleCoverageStr);
+                if (sampleCoverage <= 0 || sampleCoverage > 1) {
+                    System.out.printf("Error in sample coverage parameter: value \"%f\" is not >0 or not <=1.", sampleCoverage);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                System.out.printf("Error in sample coverage parameter: string \"%s\" is not a parsable float number.", sampleCoverageStr);
+                return;
+            }
+        } else {
+            sampleCoverage = DEFAULT_SAMPLE_COVERAGE;
         }
-      } else {
-        sampleCoverage = DEFAULT_SAMPLE_COVERAGE;
-      }
 
-      if (cmd.hasOption("restore")) {
-        DirectoryProcessor.restoreFilenames(path);
-      } else {
-        DirectoryProcessor.process(path, sampleCoverage);
-      }
-    } catch (ParseException e) {
-      e.printStackTrace();
+        if (cmd.hasOption("restore")) {
+            DirectoryProcessor.restoreFilenames(path);
+        } else {
+            DirectoryProcessor.process(path, sampleCoverage);
+        }
+
+    } catch (UnrecognizedOptionException e) {
+        printUsageInfo(options);
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
   }
 
