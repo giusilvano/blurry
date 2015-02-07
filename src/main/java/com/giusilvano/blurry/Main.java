@@ -3,6 +3,8 @@ package com.giusilvano.blurry;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main {
 
@@ -15,7 +17,7 @@ public class Main {
    */
   private static void printUsageInfo(Options options) {
     final HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("blurry [options] [target dir]", options);
+    formatter.printHelp("blurry [options] [target [target2 [target3] ...]]", options);
   }
 
   public static void main(String[] args) throws IOException {
@@ -41,21 +43,19 @@ public class Main {
             .withLongOpt("sample-coverage")
             .create("s"));
 
-    final String path;
+    final List<String> paths;
     final float sampleCoverage;
 
     try {
         final CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("cur-dir")) {
-            path = System.getProperty("user.dir");
+            paths = Arrays.asList(System.getProperty("user.dir"));
         } else {
-            final String[] dir = cmd.getArgs();
-            if (dir.length == 0) {
+            paths = cmd.getArgList();
+            if (paths.isEmpty()) {
                 printUsageInfo(options);
                 return;
-            } else {
-                path = dir[0];
             }
         }
 
@@ -76,9 +76,9 @@ public class Main {
         }
 
         if (cmd.hasOption("restore")) {
-            DirectoryProcessor.restoreFilenames(path);
+            PathsProcessor.restoreFilenames(paths);
         } else {
-            DirectoryProcessor.process(path, sampleCoverage);
+            PathsProcessor.process(paths, sampleCoverage);
         }
 
     } catch (UnrecognizedOptionException e) {

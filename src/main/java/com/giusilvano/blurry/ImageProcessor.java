@@ -8,9 +8,9 @@ public class ImageProcessor implements Runnable {
 
     private final File file;
     private final float sampleCoverage;
-    private final DirectoryProcessor.processingProgress progress;
+    private final PathsProcessor.processingProgress progress;
 
-    public ImageProcessor(File file, float sampleCoverage, DirectoryProcessor.processingProgress progress) {
+    public ImageProcessor(File file, float sampleCoverage, PathsProcessor.processingProgress progress) {
         this.file = file;
         this.sampleCoverage = sampleCoverage;
         this.progress = progress;

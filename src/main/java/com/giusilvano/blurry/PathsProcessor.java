@@ -8,71 +8,79 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class DirectoryProcessor {
+public class PathsProcessor {
+
+    /**
+     * Returns true if the given file is an image.
+     */
+    private static boolean isImage(File file) {
+        final String mimeType = new MimetypesFileTypeMap().getContentType(file);
+        if (mimeType.substring(0, 5).equalsIgnoreCase("image")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Returns all the files of a directory that are images.
      */
-    private static List<File> filterImages(File dir) {
-        if (!dir.isDirectory()) {
-            throw new IllegalArgumentException("dir parameter is not a directory");
-        }
+    private static List<File> getImagesFiles(List<String> paths) {
         final List<File> images = new ArrayList<>();
-        for (final File file : dir.listFiles()) {
-            final String mimeType = new MimetypesFileTypeMap().getContentType(file);
-            if (mimeType.substring(0, 5).equalsIgnoreCase("image")) {
-                images.add(file);
+        for (String path : paths) {
+            final File file = new File(path);
+            if (file.isDirectory()) {
+                for (final File childFile : file.listFiles()) {
+                    if (isImage(childFile)) {
+                        images.add(childFile);
+                    }
+                }
+            } else {
+                if (file.exists() && isImage(file)) {
+                    images.add(file);
+                }
             }
         }
         return images;
     }
 
-    public static void process(String path, float sampleCoverage) {
-        final File dir = new File(path);
-        if (!dir.isDirectory()) {
-            System.out.printf("Error: path %s is not a directory.\n", path);
+    public static void process(List<String> paths, float sampleCoverage) {
+        System.out.println("Looking for cool pictures...");
+        final List<File> images = getImagesFiles(paths);
+        if (images.isEmpty()) {
+            System.out.println("Sorry, no images found.");
         } else {
-            System.out.printf("Looking for cool pictures in %s ...\n", path);
-            final List<File> images = filterImages(dir);
-            if (images.isEmpty()) {
-                System.out.println("Sorry, no images found in this path.");
-            } else {
-                System.out.printf("Great! Blurry found %d images! Starting processing...\n", images.size());
-                final ExecutorService executor = Executors.newWorkStealingPool();
-                final processingProgress progress = new processingProgress(images.size());
-                for (final File image : images) {
-                    executor.execute(new ImageProcessor(image, sampleCoverage, progress));
-                }
-                executor.shutdown();
-                try {
-                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-                } catch (InterruptedException e) {
-                }
+            System.out.printf("Great! Blurry found %d images! Starting processing...\n", images.size());
+            final ExecutorService executor = Executors.newWorkStealingPool();
+            final processingProgress progress = new processingProgress(images.size());
+            for (final File image : images) {
+                executor.execute(new ImageProcessor(image, sampleCoverage, progress));
+            }
+            executor.shutdown();
+            try {
+                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
             }
         }
     }
 
-    public static void restoreFilenames(String path) {
-        final File dir = new File(path);
-        if (!dir.isDirectory()) {
-            System.out.printf("Error: path %s is not a directory.\n", path);
-        } else {
-            System.out.printf("Looking for cool pictures in %s ...\n", path);
-            int processedImages = 0;
-            for (final File file : dir.listFiles()) {
-                try {
-                    if (FileRenamer.renameRemovingScore(file)) {
-                        processedImages++;
-                    }
-                } catch (FileRenamer.CantRenameException e) {
-                    System.out.printf("Cannot rename file %s: %s already exists.\n", file.getName(), e.newFilename);
+    public static void restoreFilenames(List<String> paths) {
+        System.out.println("Looking for cool pictures...");
+        final List<File> images = getImagesFiles(paths);
+        int restoredImages = 0;
+        for (final File file : images) {
+            try {
+                if (FileRenamer.renameRemovingScore(file)) {
+                    restoredImages++;
                 }
+            } catch (FileRenamer.CantRenameException e) {
+                System.out.printf("Cannot rename file %s: %s already exists.\n", file.getName(), e.newFilename);
             }
-            if (processedImages == 0) {
-                System.out.println("No file matched the Blurry filename pattern, nothing to restore.");
-            } else {
-                System.out.printf("%d files successfully restored to their original names!\n", processedImages);
-            }
+        }
+        if (restoredImages == 0) {
+            System.out.println("No image matched the Blurry filename pattern, nothing to restore.");
+        } else {
+            System.out.printf("%d images successfully restored to their original names!\n", restoredImages);
         }
     }
 
